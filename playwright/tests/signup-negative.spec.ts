@@ -79,4 +79,15 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
 
     await expect(page).toHaveURL(SIGNUPURL);
   });
+
+  test('empty form submission blocks submission', async ({ page, signupPage }) => {
+    await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
+
+    await expect(page.getByTestId('emailInput-error')).toHaveText('Please enter an email.');
+    await expect(page.getByTestId('createAccountPasswordInput-error')).toHaveText(
+      'Please enter a password.'
+    );
+    await expect(page.getByTestId('nicknameInput-error')).toHaveText('Please enter a nickname.');
+    await expect(page).toHaveURL(SIGNUPURL);
+  });
 });
