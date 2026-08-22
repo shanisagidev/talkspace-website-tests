@@ -24,9 +24,11 @@ async function expectNoRegistrationCall(page: import('@playwright/test').Page, a
 }
 
 test.describe('Verify Talkspace signup flow - negative cases', () => {
-  test('invalid email format blocks submission', async ({ page, signupPage }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto(SIGNUPURL, { waitUntil: 'domcontentloaded' });
+  });
 
+  test('invalid email format blocks submission', async ({ page, signupPage }) => {
     await signupPage.fillEmail('notanemail');
     await signupPage.fillPassword(VALID_PASSWORD);
     await signupPage.fillNickname(VALID_NICKNAME);
@@ -40,8 +42,6 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('weak password blocks submission', async ({ page, signupPage }) => {
-    await page.goto(SIGNUPURL, { waitUntil: 'domcontentloaded' });
-
     await signupPage.fillEmail(uniqueEmail('weakpw'));
     await signupPage.fillPassword('Test13579');
     await signupPage.fillNickname(VALID_NICKNAME);
@@ -56,8 +56,6 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('nickname with spaces blocks submission', async ({ page, signupPage }) => {
-    await page.goto(SIGNUPURL, { waitUntil: 'domcontentloaded' });
-
     await signupPage.fillEmail(uniqueEmail('badnick'));
     await signupPage.fillPassword(VALID_PASSWORD);
     await signupPage.fillNickname('shani test');
@@ -72,8 +70,6 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('missing state blocks submission', async ({ page, signupPage }) => {
-    await page.goto(SIGNUPURL, { waitUntil: 'domcontentloaded' });
-
     await signupPage.fillEmail(uniqueEmail('nostate'));
     await signupPage.fillPassword(VALID_PASSWORD);
     await signupPage.fillNickname(VALID_NICKNAME);
@@ -85,8 +81,6 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('empty form submission blocks submission', async ({ page, signupPage }) => {
-    await page.goto(SIGNUPURL, { waitUntil: 'domcontentloaded' });
-
     await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
 
     await expect(page.locator('[data-qa="emailInput-error"]')).toHaveText('Please enter an email.');
