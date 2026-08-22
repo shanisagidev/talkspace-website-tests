@@ -52,4 +52,41 @@ export class SignupPage {
   async getTitle(): Promise<string> {
     return this.page.title();
   }
+
+  /**
+   * Fills the email field.
+   */
+  async fillEmail(email: string): Promise<void> {
+    await this.emailInput.fill(email);
+  }
+
+  /**
+   * Fills the password field.
+   */
+  async fillPassword(password: string): Promise<void> {
+    await this.passwordInput.fill(password);
+  }
+
+  /**
+   * Fills the nickname field.
+   */
+  async fillNickname(nickname: string): Promise<void> {
+    await this.nicknameInput.fill(nickname);
+  }
+
+  /**
+   * Selects a state from the state dropdown by typing its name and confirming the filtered match.
+   */
+  async selectState(state: string): Promise<void> {
+    await this.stateDropdown.click();
+    await this.page.keyboard.type(state);
+    await this.page.keyboard.press('Enter');
+  }
+
+  /**
+   * Clicks the "Create account" button.
+   */
+  async clickCreateAccount(): Promise<void> {
+    await this.createAccountButton.click();
+  }
 }
