@@ -18,7 +18,14 @@ test.describe('Verify TalksSpace signup flow', () => {
     await signupPage.fillPassword(PASSWORD);
     await signupPage.fillNickname(NICKNAME);
     await signupPage.selectState(STATE);
+
+    const registrationResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes('clientapi.canary.talkspace.com/v2/registration') &&
+        response.request().method() === 'POST'
+    );
     await signupPage.clickCreateAccount();
+    expect((await registrationResponse).status()).toBe(201);
 
     await expect(page).toHaveURL(/\/email-verification\/otp/);
   });
