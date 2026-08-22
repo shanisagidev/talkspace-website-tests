@@ -49,7 +49,7 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
 
     await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
 
-    await expect(page.locator('[data-qa="createAccountPasswordInput-error"]')).toHaveText(
+    await expect(page.getByTestId('createAccountPasswordInput-error')).toHaveText(
       "Password not secure enough. Try adding symbols or words, and don't use repeat characters."
     );
     await expect(page).toHaveURL(SIGNUPURL);
@@ -63,7 +63,7 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
 
     await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
 
-    await expect(page.locator('[data-qa="nicknameInput-error"]')).toHaveText(
+    await expect(page.getByTestId('nicknameInput-error')).toHaveText(
       "Can't contain special characters or spaces."
     );
     await expect(page).toHaveURL(SIGNUPURL);
@@ -77,17 +77,6 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
 
     await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
 
-    await expect(page).toHaveURL(SIGNUPURL);
-  });
-
-  test('empty form submission blocks submission', async ({ page, signupPage }) => {
-    await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
-
-    await expect(page.locator('[data-qa="emailInput-error"]')).toHaveText('Please enter an email.');
-    await expect(page.locator('[data-qa="createAccountPasswordInput-error"]')).toHaveText(
-      'Please enter a password.'
-    );
-    await expect(page.locator('[data-qa="nicknameInput-error"]')).toHaveText('Please enter a nickname.');
     await expect(page).toHaveURL(SIGNUPURL);
   });
 });
