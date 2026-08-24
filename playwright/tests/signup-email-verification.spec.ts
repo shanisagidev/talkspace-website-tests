@@ -58,21 +58,14 @@ test.describe('Verify Talkspace signup flow - email verification', () => {
     expect(await verifyResponse).toBeNull();
   });
 
-  test('resend code button requests a new code and clears the error state', async ({ page, emailVerificationPage }) => {
-    await emailVerificationPage.enterCode('123456');
-    await expect(emailVerificationPage.errorMessage).toBeVisible();
+  test('Update email link navigates to the change-email screen', async ({ page, emailVerificationPage }) => {
+    await emailVerificationPage.updateEmailLink.click();
 
-    let resendStatus: number | null = null;
-    page.on('response', (response) => {
-      if (response.url().includes(RESEND_ENDPOINT)) {
-        resendStatus = response.status();
-      }
-    });
-
-    await emailVerificationPage.resendCodeButton.click();
-
-    await expect.poll(() => resendStatus, { timeout: 10000 }).toBe(200);
-    await expect(emailVerificationPage.errorMessage).toBeHidden();
-    await expect(emailVerificationPage.codeInputs[0]).toHaveValue('');
+    await expect(page).toHaveURL(/\/email-verification\/change-email/);
+    await expect(page.getByText('Change email')).toBeVisible();
+    await expect(page.getByTestId('newEmailInput')).toBeVisible();
+    await expect(page.getByTestId('confirmNewEmailInput')).toBeVisible();
+    await expect(page.getByTestId('saveAndResendEmailButton')).toBeVisible();
   });
+
 });
