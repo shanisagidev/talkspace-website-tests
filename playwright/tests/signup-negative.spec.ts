@@ -1,5 +1,6 @@
 import { test } from '../fixtures/page.fixture';
 import { expect } from '@playwright/test';
+import { expectNoRequestTo } from '../utils/network';
 
 const SIGNUPURL = 'https://app.canary.talkspace.com/signup/autoswitchpt';
 const REGISTRATION_ENDPOINT = 'clientapi.canary.talkspace.com/v2/registration';
@@ -10,17 +11,6 @@ const VALID_STATE = 'California';
 
 function uniqueEmail(label: string): string {
   return `shani.${label}.${Date.now()}@test.com`;
-}
-
-async function expectNoRegistrationCall(page: import('@playwright/test').Page, action: () => Promise<void>) {
-  const registrationResponse = page
-    .waitForResponse(
-      (response) => response.url().includes(REGISTRATION_ENDPOINT) && response.request().method() === 'POST',
-      { timeout: 3000 }
-    )
-    .catch(() => null);
-  await action();
-  expect(await registrationResponse).toBeNull();
 }
 
 test.describe('Verify Talkspace signup flow - negative cases', () => {
@@ -34,7 +24,7 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
     await signupPage.fillNickname(VALID_NICKNAME);
     await signupPage.selectState(VALID_STATE);
 
-    await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
+    await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
     const isEmailValid = await signupPage.emailInput.evaluate((el) => (el as HTMLInputElement).validity.valid);
     expect(isEmailValid).toBe(false);
@@ -47,7 +37,7 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
     await signupPage.fillNickname(VALID_NICKNAME);
     await signupPage.selectState(VALID_STATE);
 
-    await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
+    await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
     await expect(page.getByTestId('createAccountPasswordInput-error')).toHaveText(
       "Password not secure enough. Try adding symbols or words, and don't use repeat characters."
@@ -61,7 +51,7 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
     await signupPage.fillNickname('shani test');
     await signupPage.selectState(VALID_STATE);
 
-    await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
+    await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
     await expect(page.getByTestId('nicknameInput-error')).toHaveText(
       "Can't contain special characters or spaces."
@@ -75,13 +65,13 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
     await signupPage.fillNickname(VALID_NICKNAME);
     // deliberately not selecting a state
 
-    await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
+    await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
     await expect(page).toHaveURL(SIGNUPURL);
   });
 
   test('empty form submission blocks submission', async ({ page, signupPage }) => {
-    await expectNoRegistrationCall(page, () => signupPage.clickCreateAccount());
+    await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
     await expect(page.getByTestId('emailInput-error')).toHaveText('Please enter an email.');
     await expect(page.getByTestId('createAccountPasswordInput-error')).toHaveText(

@@ -17,6 +17,7 @@ test.describe('Verify TalksSpace signup flow', () => {
     await signupPage.fillEmail(EMAILADRESS);
     await signupPage.fillPassword(PASSWORD);
     await signupPage.fillNickname(NICKNAME);
+    await signupPage.selectCountry(COUNTRY);
     await signupPage.selectState(STATE);
 
     const registrationResponse = page.waitForResponse(

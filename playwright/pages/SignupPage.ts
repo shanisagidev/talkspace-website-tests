@@ -75,6 +75,15 @@ export class SignupPage {
   }
 
   /**
+   * Selects a country from the country dropdown by typing its name and confirming the filtered match.
+   */
+  async selectCountry(country: string): Promise<void> {
+    await this.countryDropdown.click();
+    await this.page.keyboard.type(country);
+    await this.page.keyboard.press('Enter');
+  }
+
+  /**
    * Selects a state from the state dropdown by typing its name and confirming the filtered match.
    */
   async selectState(state: string): Promise<void> {
