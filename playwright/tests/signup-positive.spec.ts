@@ -11,9 +11,11 @@ const STATE = 'California';
 test.describe('Verify TalksSpace signup flow', () => {
   test('should open the signup page', async ({ page, signupPage }) => {
     // --- Login ---
+    console.log(`Navigating to ${SIGNUPURL}`);
     await page.goto(SIGNUPURL, { waitUntil: 'domcontentloaded' });
     expect (page.url()).toBe(SIGNUPURL);
 
+    console.log(`Filling signup form with email: ${EMAILADRESS}`);
     await signupPage.fillEmail(EMAILADRESS);
     await signupPage.fillPassword(PASSWORD);
     await signupPage.fillNickname(NICKNAME);
@@ -25,9 +27,13 @@ test.describe('Verify TalksSpace signup flow', () => {
         response.url().includes('clientapi.canary.talkspace.com/v2/registration') &&
         response.request().method() === 'POST'
     );
+    console.log('Submitting "Create account"');
     await signupPage.clickCreateAccount();
-    expect((await registrationResponse).status()).toBe(201);
+    const response = await registrationResponse;
+    console.log(`Registration response status: ${response.status()}`);
+    expect(response.status()).toBe(201);
 
+    console.log(`Redirected to: ${page.url()}`);
     await expect(page).toHaveURL(/\/email-verification\/otp/);
   });
 });

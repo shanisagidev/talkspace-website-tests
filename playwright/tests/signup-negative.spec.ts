@@ -19,6 +19,7 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('invalid email format blocks submission', async ({ page, signupPage }) => {
+    console.log('Filling email with invalid format: notanemail');
     await signupPage.fillEmail('notanemail');
     await signupPage.fillPassword(VALID_PASSWORD);
     await signupPage.fillNickname(VALID_NICKNAME);
@@ -27,18 +28,23 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
     await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
     const isEmailValid = await signupPage.emailInput.evaluate((el) => (el as HTMLInputElement).validity.valid);
+    console.log(`Email input validity.valid: ${isEmailValid}`);
     expect(isEmailValid).toBe(false);
     await expect(page).toHaveURL(SIGNUPURL);
   });
 
   test('weak password blocks submission', async ({ page, signupPage }) => {
-    await signupPage.fillEmail(uniqueEmail('weakpw'));
+    const email = uniqueEmail('weakpw');
+    console.log(`Using email: ${email}, weak password: Test13579`);
+    await signupPage.fillEmail(email);
     await signupPage.fillPassword('Test13579');
     await signupPage.fillNickname(VALID_NICKNAME);
     await signupPage.selectState(VALID_STATE);
 
     await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
+    const errorText = await page.getByTestId('createAccountPasswordInput-error').textContent();
+    console.log(`Password error shown: "${errorText}"`);
     await expect(page.getByTestId('createAccountPasswordInput-error')).toHaveText(
       "Password not secure enough. Try adding symbols or words, and don't use repeat characters."
     );
@@ -46,13 +52,17 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('nickname with spaces blocks submission', async ({ page, signupPage }) => {
-    await signupPage.fillEmail(uniqueEmail('badnick'));
+    const email = uniqueEmail('badnick');
+    console.log(`Using email: ${email}, nickname with space: "shani test"`);
+    await signupPage.fillEmail(email);
     await signupPage.fillPassword(VALID_PASSWORD);
     await signupPage.fillNickname('shani test');
     await signupPage.selectState(VALID_STATE);
 
     await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
 
+    const errorText = await page.getByTestId('nicknameInput-error').textContent();
+    console.log(`Nickname error shown: "${errorText}"`);
     await expect(page.getByTestId('nicknameInput-error')).toHaveText(
       "Can't contain special characters or spaces."
     );
@@ -60,7 +70,9 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('missing state blocks submission', async ({ page, signupPage }) => {
-    await signupPage.fillEmail(uniqueEmail('nostate'));
+    const email = uniqueEmail('nostate');
+    console.log(`Using email: ${email}, deliberately leaving state unselected`);
+    await signupPage.fillEmail(email);
     await signupPage.fillPassword(VALID_PASSWORD);
     await signupPage.fillNickname(VALID_NICKNAME);
     // deliberately not selecting a state
@@ -71,7 +83,13 @@ test.describe('Verify Talkspace signup flow - negative cases', () => {
   });
 
   test('empty form submission blocks submission', async ({ page, signupPage }) => {
+    console.log('Submitting the form with all fields empty');
     await expectNoRequestTo(page, REGISTRATION_ENDPOINT, () => signupPage.clickCreateAccount());
+
+    const emailError = await page.getByTestId('emailInput-error').textContent();
+    const passwordError = await page.getByTestId('createAccountPasswordInput-error').textContent();
+    const nicknameError = await page.getByTestId('nicknameInput-error').textContent();
+    console.log(`Errors shown - email: "${emailError}", password: "${passwordError}", nickname: "${nicknameError}"`);
 
     await expect(page.getByTestId('emailInput-error')).toHaveText('Please enter an email.');
     await expect(page.getByTestId('createAccountPasswordInput-error')).toHaveText(

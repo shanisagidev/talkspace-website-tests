@@ -17,5 +17,11 @@ export async function expectNoRequestTo(
     )
     .catch(() => null);
   await action();
-  expect(await response).toBeNull();
+  const result = await response;
+  console.log(
+    result === null
+      ? `No POST request to "${urlSubstring}" fired, as expected`
+      : `Unexpected POST request to "${urlSubstring}" fired with status ${result.status()}`
+  );
+  expect(result).toBeNull();
 }
